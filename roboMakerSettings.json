@@ -136,7 +136,7 @@
               "MARKOV_PRESET_FILE": "training_grounds.py",
               "MODEL_S3_BUCKET": "marco--training",
               "MODEL_S3_PREFIX": "001-training-grounds-with-rl",
-              "ROS_AWS_REGION": "us-east-2",
+              "ROS_AWS_REGION": "us-east-2"
             }
           },
           "simulationSoftwareSuite": {
@@ -188,7 +188,7 @@
               "MARKOV_PRESET_FILE": "mars_presets.py",
               "MODEL_S3_BUCKET": "marco--mars",
               "MODEL_S3_PREFIX": "001-mars-with-rl",
-              "ROS_AWS_REGION": "us-east-2",
+              "ROS_AWS_REGION": "us-east-2"
             }
           },
           "simulationSoftwareSuite": {
@@ -240,7 +240,7 @@
               "MARKOV_PRESET_FILE": "rover_evaluation.py",
               "MODEL_S3_BUCKET": "marco--training-output",
               "MODEL_S3_PREFIX": "001-training-grounds-eval",
-              "ROS_AWS_REGION": "us-east-2",
+              "ROS_AWS_REGION": "us-east-2"
             }
           },
           "simulationSoftwareSuite": {
