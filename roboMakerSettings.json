@@ -163,7 +163,7 @@
           "maxJobDurationInSeconds": 86400,
           "failureBehavior": "Continue",
           "iamRole": "arn:aws:iam::823783278658:role/robomaker-training-role",
-          "outputLocation": "burnsca-mars",
+          "outputLocation": "marco--mars",
           "vpcConfig": {
             "subnets": [
               "subnet-189dc270",
