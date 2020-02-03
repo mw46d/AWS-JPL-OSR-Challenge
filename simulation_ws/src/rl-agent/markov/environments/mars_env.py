@@ -338,8 +338,8 @@ class MarsEnv(gym.Env):
         
         GUIDERAILS_X_MIN = -45.0
         GUIDERAILS_X_MAX = 5.0
-        GUIDERAILS_Y_MIN = 20.0
-        GUIDERAILS_Y_MAX = -10.0
+        GUIDERAILS_Y_MIN = -10.0
+        GUIDERAILS_Y_MAX = 20.0
         
         
         # WayPoints to checkpoint
