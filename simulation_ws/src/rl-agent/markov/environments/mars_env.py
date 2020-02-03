@@ -41,7 +41,7 @@ IMG_QUEUE_BUF_SIZE = 1
 MAX_STEPS = 2000
 
 # Destination Point
-CHECKPOINT_X = 44.25
+CHECKPOINT_X = -44.25
 CHECKPOINT_Y = -4
 
 # Initial position of the robot
@@ -336,21 +336,21 @@ class MarsEnv(gym.Env):
         STAGE_Y_MAX = 22.0
         
         
-        GUIDERAILS_X_MIN = -10.0
-        GUIDERAILS_X_MAX = 50.0
-        GUIDERAILS_Y_MIN = -20.0
-        GUIDERAILS_Y_MAX = 10.0
+        GUIDERAILS_X_MIN = -45.0
+        GUIDERAILS_X_MAX = 5.0
+        GUIDERAILS_Y_MIN = 20.0
+        GUIDERAILS_Y_MAX = -10.0
         
         
         # WayPoints to checkpoint
-        WAYPOINT_1_X = 9.0
-        WAYPOINT_1_Y = 4.0
+        WAYPOINT_1_X = -9.0
+        WAYPOINT_1_Y = -4.0
         
-        WAYPOINT_2_X = 20.0
-        WAYPOINT_2_Y = -2.0
+        WAYPOINT_2_X = -20.0
+        WAYPOINT_2_Y = 2.0
         
-        WAYPOINT_3_X = 31.0
-        WAYPOINT_3_Y = -2.0
+        WAYPOINT_3_X = -30.0
+        WAYPOINT_3_Y = 2.0
         
         # REWARD Multipliers
         FINISHED_REWARD = 10000
