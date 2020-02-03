@@ -298,15 +298,16 @@ class MarsEnv(gym.Env):
         else:
             avg_imu = 0
     
-        print('Step:%.2f' % self.steps,
-              'Steering:%f' % action[0],
-              'R:%.2f' % reward,                                # Reward
-              'DTCP:%f' % self.current_distance_to_checkpoint,  # Distance to Check Point
-              'DT:%f' % self.distance_travelled,                # Distance Travelled
-              'CT:%.2f' % self.collision_threshold,             # Collision Threshold
-              'CTCP:%f' % self.closer_to_checkpoint,            # Is closer to checkpoint
-              'PSR: %f' % self.power_supply_range,              # Steps remaining in Episode
-              'IMU: %f' % avg_imu)
+        print('Step: %03d' % int(self.steps),
+              '\tSteering: %d' % action[0],
+              '\tR: %.2f' % reward,                                # Reward
+              '\tDTCP: %.2f' % self.current_distance_to_checkpoint,  # Distance to Check Point
+              '\tDT: %.2f' % self.distance_travelled,                # Distance Travelled
+              '\tCT: %.2f' % self.collision_threshold,             # Collision Threshold
+              '\tCTCP: %d' % int(self.closer_to_checkpoint),            # Is closer to checkpoint
+              '\tPSR: %d' % int(self.power_supply_range),              # Steps remaining in Episode
+              '\tIMU: %f' % avg_imu,
+              '\tPos: (%.2f, %.2f)' % (self.x, self.y))
 
         self.reward = reward
         self.done = done
@@ -392,12 +393,12 @@ class MarsEnv(gym.Env):
             
             # If it has not reached the check point is it still on the map?
             if self.x < (GUIDERAILS_X_MIN - .45) or self.x > (GUIDERAILS_X_MAX + .45):
-                print("Rover has left the mission map!")
+                print("Rover has left the mission map! X: %.2f [ %.2f, %.2f ]" % (self.x, GUIDERAILS_X_MIN, GUIDERAILS_X_MAX))
                 return 0, True
                 
                 
             if self.y < (GUIDERAILS_Y_MIN - .45) or self.y > (GUIDERAILS_Y_MAX + .45):
-                print("Rover has left the mission map!")
+                print("Rover has left the mission map! Y; %.2f [ %.2f, %.2f ]" % (self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
                 return 0, True
             
             
@@ -457,20 +458,17 @@ class MarsEnv(gym.Env):
                 multiplier = multiplier # probably going to hit something and get a zero reward
             
             if not self.reached_waypoint_1:
-                if math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2) <
-                    math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2):
+                if math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2):
                     if multiplier > 0:
                         # Cut the multiplier in half
                         multiplier = multiplier / 2
             elif not self.reached_waypoint_2:
-                if math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2) <
-                    math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2):
+                if math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2):
                     if multiplier > 0:
                         # Cut the multiplier in half
                         multiplier = multiplier / 2
             elif not self.reached_waypoint_3:
-                if math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2) <
-                    math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2):
+                if math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2):
                     if multiplier > 0:
                         # Cut the multiplier in half
                         multiplier = multiplier / 2
