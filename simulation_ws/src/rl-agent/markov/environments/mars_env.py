@@ -369,6 +369,7 @@ class MarsEnv(gym.Env):
         
         
         # WayPoints to checkpoint
+        WAYPOINT_RADIUS = 1.5
         WAYPOINT_1_X = -9.0
         WAYPOINT_1_Y = -4.0
         
@@ -379,14 +380,14 @@ class MarsEnv(gym.Env):
         WAYPOINT_3_Y = 2.0
         
         # REWARD Multipliers
-        FINISHED_REWARD = 10000
-        WAYPOINT_1_REWARD = 1000
-        WAYPOINT_2_REWARD = 2000
-        WAYPOINT_3_REWARD = 3000
+        FINISHED_REWARD = 10000.0
+        WAYPOINT_1_REWARD = 1000.0
+        WAYPOINT_2_REWARD = 2000.0
+        WAYPOINT_3_REWARD = 3000.0
 
-        reward = 0
-        base_reward = 2
-        multiplier = 0
+        reward = 0.0
+        base_reward = 2.0
+        multiplier = 0.0
         done = False
         
         
@@ -419,37 +420,40 @@ class MarsEnv(gym.Env):
             
             # If it has not reached the check point is it still on the map?
             if self.x < (GUIDERAILS_X_MIN - .45) or self.x > (GUIDERAILS_X_MAX + .45):
-                print("Rover has left the mission map! X: %.2f [ %.2f, %.2f ]" % (self.x, GUIDERAILS_X_MIN, GUIDERAILS_X_MAX))
+                print("Rover has left the mission map! X: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_X_MIN, GUIDERAILS_X_MAX))
                 return 0, True
                 
                 
             if self.y < (GUIDERAILS_Y_MIN - .45) or self.y > (GUIDERAILS_Y_MAX + .45):
-                print("Rover has left the mission map! Y; %.2f [ %.2f, %.2f ]" % (self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
+                print("Rover has left the mission map! Y: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
                 return 0, True
             
             
             # No Episode ending events - continue to calculate reward
             
             if not self.reached_waypoint_1:
-                if math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2) < 1.0:
+                d = math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2)
+                if d < WAYPOINT_RADIUS:
                     self.reached_waypoint_1 = True
-                    print("Congratulations! The rover has reached waypoint 1!")
-                    multiplier = 1 
-                    reward = (WAYPOINT_1_REWARD * multiplier)/ self.steps # <-- incentivize to reach way-point in fewest steps
+                    print("Congratulations! The rover has reached waypoint 1! (%.2f, %.2f) -> %.2f" %(self.last_position_x, self.last_position_y, d))
+                    multiplier = 1.0
+                    reward = (WAYPOINT_1_REWARD * multiplier) / self.steps # <-- incentivize to reach way-point in fewest steps
                     return reward, False
             elif not self.reached_waypoint_2:
-                if math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2) < 1.0:
+                d = math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2)
+                if d < WAYPOINT_RADIUS:
                     self.reached_waypoint_2 = True
-                    print("Congratulations! The rover has reached waypoint 2!")
-                    multiplier = 1 
-                    reward = (WAYPOINT_2_REWARD * multiplier)/ self.steps # <-- incentivize to reach way-point in fewest steps
+                    print("Congratulations! The rover has reached waypoint 2! (%.2f, %.2f) -> %.2f" %(self.last_position_x, self.last_position_y, d))
+                    multiplier = 1 .0
+                    reward = (WAYPOINT_2_REWARD * multiplier) / self.steps # <-- incentivize to reach way-point in fewest steps
                     return reward, False
             elif not self.reached_waypoint_3:
-                if math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2) < 1.0:
+                d = math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2)
+                if d < WAYPOINT_RADIUS:
                     self.reached_waypoint_3 = True
-                    print("Congratulations! The rover has reached waypoint 3!")
-                    multiplier = 1 
-                    reward = (WAYPOINT_3_REWARD * multiplier)/ self.steps # <-- incentivize to reach way-point in fewest steps
+                    print("Congratulations! The rover has reached waypoint 3! (%.2f, %.2f) -> %.2f" %(self.last_position_x, self.last_position_y, d))
+                    multiplier = 1 .0
+                    reward = (WAYPOINT_3_REWARD * multiplier) / self.steps # <-- incentivize to reach way-point in fewest steps
                     return reward, False
 
 
@@ -463,47 +467,56 @@ class MarsEnv(gym.Env):
                 
             # Get the Base multiplier
             if self.current_distance_to_checkpoint <= marker[0]:
-                multiplier = 5
+                multiplier = 5.0
             elif self.current_distance_to_checkpoint <= marker[1] and self.current_distance_to_checkpoint > marker[0]:
-                multiplier = 4
+                multiplier = 4.0
             elif self.current_distance_to_checkpoint <= marker[2] and self.current_distance_to_checkpoint > marker[1]:
-                multiplier = 3
+                multiplier = 3.0
             elif self.current_distance_to_checkpoint <= marker[3] and self.current_distance_to_checkpoint > marker[2]:
-                multiplier = 2
+                multiplier = 2.0
             else:
-                multiplier = 1
+                multiplier = 1.0
             
             # Incentivize the rover to stay away from objects
             if self.collision_threshold >= 2.0:      # very safe distance
-                multiplier = multiplier + 1
+                multiplier = multiplier + 1.0
             elif self.collision_threshold < 2.0 and self.collision_threshold >= 1.5: # pretty safe
-                multiplier = multiplier + .5
+                multiplier = multiplier + 0.5
             elif self.collision_threshold < 1.5 and self.collision_threshold >= 1.0: # just enough time to turn
-                multiplier = multiplier + .25
+                multiplier = multiplier + 0.25
             else:
                 multiplier = multiplier # probably going to hit something and get a zero reward
             
             if not self.reached_waypoint_1:
-                if math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2):
-                    if multiplier > 0:
+                ld = math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2)
+                d = math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2)
+                print("On way to WP1 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
+                if ld < d:
+                    if multiplier > 0.0:
                         # Cut the multiplier in half
-                        multiplier = multiplier / 2
+                        multiplier = multiplier / 2.0
             elif not self.reached_waypoint_2:
-                if math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2):
-                    if multiplier > 0:
+                ld = math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2)
+                d = math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2)
+                print("On way to WP2 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
+                if ld < d:
+                    if multiplier > 0.0:
                         # Cut the multiplier in half
-                        multiplier = multiplier / 2
+                        multiplier = multiplier / 2.0
             elif not self.reached_waypoint_3:
-                if math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2) < math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2):
-                    if multiplier > 0:
+                ld = math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2)
+                d = math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2)
+                print("On way to WP3 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
+                if ld < d:
+                    if multiplier > 0.0:
                         # Cut the multiplier in half
-                        multiplier = multiplier / 2
+                        multiplier = multiplier / 2.0
             else:
                 # Incentize the rover to move towards the Checkpoint and not away from the checkpoint
                 if not self.closer_to_checkpoint:
-                    if multiplier > 0:
+                    if multiplier > 0.0:
                         # Cut the multiplier in half
-                        multiplier = multiplier / 2
+                        multiplier = multiplier / 2.0
                     
             reward = base_reward * multiplier
             
