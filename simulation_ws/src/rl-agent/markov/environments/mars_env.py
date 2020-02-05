@@ -390,8 +390,8 @@ class MarsEnv(gym.Env):
         multiplier = 0.0
         done = False
         
-        if not hasattr(reward_function, "static_stuck_counter"):
-            reward_function.static_stuck_counter = 0
+        if not hasattr(self.reward_function, "static_stuck_counter"):
+            self.reward_function.__func__.static_stuck_counter = 0
 
         if self.steps > 0:
             
@@ -431,12 +431,12 @@ class MarsEnv(gym.Env):
                 return 0, True
 
             if math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2) < 0.10:
-                reward_function.static_stuck_counter += 1
+                self.reward_function.__func__.static_stuck_counter += 1
             else:
-                reward_function.static_stuck_counter = 0
+                self.reward_function.__func__.static_stuck_counter = 0
             
-            if reward_function.static_stuck_counter >= 10:
-                reward_function.static_stuck_counter = 0
+            if self.reward_function.__func__.static_stuck_counter >= 10:
+                self.reward_function.__func__.static_stuck_counter = 0
                 print("Rover stuck! (%.2f, %.2f)" % (self.x, self.y))
                 return 0, True
 
