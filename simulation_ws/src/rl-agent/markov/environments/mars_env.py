@@ -362,10 +362,10 @@ class MarsEnv(gym.Env):
         STAGE_Y_MAX = 22.0
         
         
-        GUIDERAILS_X_MIN = -45.0
-        GUIDERAILS_X_MAX = 5.0
-        GUIDERAILS_Y_MIN = -10.0
-        GUIDERAILS_Y_MAX = 20.0
+        GUIDERAILS_X_MIN = -46.0
+        GUIDERAILS_X_MAX = 1.0
+        GUIDERAILS_Y_MIN = -6.0
+        GUIDERAILS_Y_MAX = 4.0
         
         
         # WayPoints to checkpoint
@@ -433,6 +433,7 @@ class MarsEnv(gym.Env):
             d = math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2)
             if d < 0.05:
                 self.reward_function.__func__.static_stuck_counter += 1
+                base_reward = 0
                 print("Rover potentially stuck (%.2f, %.2f) d: %.2f (%d)" % (self.x, self.y, d, self.reward_function.__func__.static_stuck_counter))
             else:
                 self.reward_function.__func__.static_stuck_counter = 0
