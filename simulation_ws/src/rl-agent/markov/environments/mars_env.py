@@ -456,7 +456,7 @@ class MarsEnv(gym.Env):
                 if d < WAYPOINT_RADIUS:
                     self.reached_waypoint_2 = True
                     print("Congratulations! The rover has reached waypoint 2! (%.2f, %.2f) -> %.2f" %(self.last_position_x, self.last_position_y, d))
-                    multiplier = 1 .0
+                    multiplier = 1.0
                     reward = (WAYPOINT_2_REWARD * multiplier) / self.steps # <-- incentivize to reach way-point in fewest steps
                     return reward, False
             elif not self.reached_waypoint_3:
@@ -464,7 +464,7 @@ class MarsEnv(gym.Env):
                 if d < WAYPOINT_RADIUS:
                     self.reached_waypoint_3 = True
                     print("Congratulations! The rover has reached waypoint 3! (%.2f, %.2f) -> %.2f" %(self.last_position_x, self.last_position_y, d))
-                    multiplier = 1 .0
+                    multiplier = 1.0
                     reward = (WAYPOINT_3_REWARD * multiplier) / self.steps # <-- incentivize to reach way-point in fewest steps
                     return reward, False
 
