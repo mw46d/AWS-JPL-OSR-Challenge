@@ -430,8 +430,10 @@ class MarsEnv(gym.Env):
                 print("Rover has left the mission map! Y: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
                 return 0, True
 
-            if math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2) < 0.10:
+            d = math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2)
+            if d < 0.05:
                 self.reward_function.__func__.static_stuck_counter += 1
+                print("Rover potentially stuck (%.2f, %.2f) d: %.2f (%d)" % (self.x, self.y, d, self.reward_function.__func__.static_stuck_counter))
             else:
                 self.reward_function.__func__.static_stuck_counter = 0
             
