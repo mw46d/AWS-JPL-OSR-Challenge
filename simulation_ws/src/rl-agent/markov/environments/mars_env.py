@@ -390,7 +390,9 @@ class MarsEnv(gym.Env):
         multiplier = 0.0
         done = False
         
-        
+        if not hasattr(reward_function, "static_stuck_counter"):
+            reward_function.static_stuck_counter = 0
+
         if self.steps > 0:
             
             # Check for episode ending events first
@@ -427,8 +429,18 @@ class MarsEnv(gym.Env):
             if self.y < (GUIDERAILS_Y_MIN - .45) or self.y > (GUIDERAILS_Y_MAX + .45):
                 print("Rover has left the mission map! Y: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
                 return 0, True
+
+            if math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2) < 0.10:
+                reward_function.static_stuck_counter += 1
+            else:
+                reward_function.static_stuck_counter = 0
             
-            
+            if reward_function.static_stuck_counter >= 10:
+                reward_function.static_stuck_counter = 0
+                print("Rover stuck! (%.2f, %.2f)" % (self.x, self.y))
+                return 0, True
+
+
             # No Episode ending events - continue to calculate reward
             
             if not self.reached_waypoint_1:
