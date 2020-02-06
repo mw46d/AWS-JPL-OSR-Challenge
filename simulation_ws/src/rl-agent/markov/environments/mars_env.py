@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import time
 import boto3
+import collections
 import gym
 import numpy as np
 from gym import spaces
@@ -389,9 +390,21 @@ class MarsEnv(gym.Env):
         base_reward = 2.0
         multiplier = 0.0
         done = False
-        
+
         if not hasattr(self.reward_function, "static_stuck_counter"):
             self.reward_function.__func__.static_stuck_counter = 0
+            self.reward_function.__func__.static_wp1_closer_list = collections.deque(maxlen = 10)
+            self.reward_function.__func__.static_wp2_closer_list = collections.deque(maxlen = 10)
+            self.reward_function.__func__.static_wp3_closer_list = collections.deque(maxlen = 10)
+            self.reward_function.__func__.static_cp_closer_list = collections.deque(maxlen = 10)
+
+        if self.steps == 1:
+            # Reinitialize
+            self.reward_function.__func__.static_stuck_counter = 0
+            self.reward_function.__func__.static_wp1_closer_list.clear()
+            self.reward_function.__func__.static_wp2_closer_list.clear()
+            self.reward_function.__func__.static_wp3_closer_list.clear()
+            self.reward_function.__func__.static_cp_closer_list.clear()
 
         if self.steps > 0:
             
@@ -412,7 +425,7 @@ class MarsEnv(gym.Env):
             if self.power_supply_range < 1:
                 print("Rover's power supply has been drained (MAX Steps reached")
                 return 0, True # No reward
-            
+
             # Has the Rover reached the destination
             if math.sqrt((CHECKPOINT_X - self.last_position_x) ** 2 + (CHECKPOINT_Y - self.last_position_y) ** 2) < 0.45:
                 print("Congratulations! The rover has reached the checkpoint!")
@@ -424,10 +437,14 @@ class MarsEnv(gym.Env):
             if self.x < (GUIDERAILS_X_MIN - .45) or self.x > (GUIDERAILS_X_MAX + .45):
                 print("Rover has left the mission map! X: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_X_MIN, GUIDERAILS_X_MAX))
                 return 0, True
-                
-                
+
             if self.y < (GUIDERAILS_Y_MIN - .45) or self.y > (GUIDERAILS_Y_MAX + .45):
                 print("Rover has left the mission map! Y: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_Y_MIN, GUIDERAILS_Y_MAX))
+                return 0, True
+
+            a = (self.max_lin_accel_x + self.max_lin_accel_y + self.max_lin_accel_z) / 3.0
+            if a > 20.0:
+                print("Rover accel %.2f > 20.0 - Fail" % (a))
                 return 0, True
 
             d = math.sqrt((self.x - self.last_position_x) ** 2 + (self.y - self.last_position_y) ** 2)
@@ -502,43 +519,40 @@ class MarsEnv(gym.Env):
             else:
                 multiplier = multiplier # probably going to hit something and get a zero reward
             
+            ld1 = math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2)
+            d1 = math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2)
+            self.reward_function.__func__.static_wp1_closer_list.append(int(d1 <= ld1))
+            ld2 = math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2)
+            d2 = math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2)
+            self.reward_function.__func__.static_wp2_closer_list.append(int(d2 <= ld2))
+            ld3 = math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2)
+            d3 = math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2)
+            self.reward_function.__func__.static_wp3_closer_list.append(int(d3 <= ld3))
+            self.reward_function.__func__.static_cp_closer_list.append(int(self.closer_to_checkpoint))
+
             if not self.reached_waypoint_1:
-                ld = math.sqrt((WAYPOINT_1_X - self.last_position_x) ** 2 + (WAYPOINT_1_Y - self.last_position_y) ** 2)
-                d = math.sqrt((WAYPOINT_1_X - self.x) ** 2 + (WAYPOINT_1_Y - self.y) ** 2)
-                print("On way to WP1 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
-                if ld < d:
-                    if multiplier > 0.0:
-                        # Cut the multiplier in half
-                        multiplier = multiplier / 2.0
+                print("On way to WP1 (%.2f, %.2f) d: %.2f  ld: %.02f" % (self.last_position_x, self.last_position_y, d1, ld1))
+                if multiplier > 0.0:
+                    multiplier = multiplier / (2.0 - float(sum(self.reward_function.__func__.static_wp1_closer_list)) / len(self.reward_function.__func__.static_wp1_closer_list))
             elif not self.reached_waypoint_2:
-                ld = math.sqrt((WAYPOINT_2_X - self.last_position_x) ** 2 + (WAYPOINT_2_Y - self.last_position_y) ** 2)
-                d = math.sqrt((WAYPOINT_2_X - self.x) ** 2 + (WAYPOINT_2_Y - self.y) ** 2)
-                print("On way to WP2 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
-                if ld < d:
-                    if multiplier > 0.0:
-                        # Cut the multiplier in half
-                        multiplier = multiplier / 2.0
+                print("On way to WP2 (%.2f, %.2f) d: %.2f  ld: %.02f" % (self.last_position_x, self.last_position_y, d2, ld2))
+                if multiplier > 0.0:
+                    multiplier = multiplier / (2.0 - float(sum(self.reward_function.__func__.static_wp2_closer_list)) / len(self.reward_function.__func__.static_wp2_closer_list))
             elif not self.reached_waypoint_3:
-                ld = math.sqrt((WAYPOINT_3_X - self.last_position_x) ** 2 + (WAYPOINT_3_Y - self.last_position_y) ** 2)
-                d = math.sqrt((WAYPOINT_3_X - self.x) ** 2 + (WAYPOINT_3_Y - self.y) ** 2)
-                print("On way to WP3 (%.2f, %.2f) ld: %.2f  d: %.02f" % (self.last_position_x, self.last_position_y, ld, d))
-                if ld < d:
-                    if multiplier > 0.0:
-                        # Cut the multiplier in half
-                        multiplier = multiplier / 2.0
+                print("On way to WP3 (%.2f, %.2f) d: %.2f  ld: %.02f" % (self.last_position_x, self.last_position_y, d3, ld3))
+                if multiplier > 0.0:
+                    multiplier = multiplier / (2.0 - float(sum(self.reward_function.__func__.static_wp3_closer_list)) / len(self.reward_function.__func__.static_wp3_closer_list))
             else:
                 # Incentize the rover to move towards the Checkpoint and not away from the checkpoint
-                if not self.closer_to_checkpoint:
-                    if multiplier > 0.0:
-                        # Cut the multiplier in half
-                        multiplier = multiplier / 2.0
-                    
+                if multiplier > 0.0:
+                    multiplier = multiplier / (2.0 - float(sum(self.reward_function.__func__.static_cp_closer_list)) / len(self.reward_function.__func__.static_cp_closer_list))
+
             reward = base_reward * multiplier
-            
-        
+            print("Base_reward: %.2f * %.2f -> %.2f" % (base_reward, multiplier, reward))
+
         return reward, done
-    
-        
+
+
     '''
     DO NOT EDIT - Function to receive LIDAR data from a ROSTopic
     '''
