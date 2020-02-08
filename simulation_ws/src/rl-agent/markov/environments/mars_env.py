@@ -392,8 +392,9 @@ class MarsEnv(gym.Env):
 
         if not hasattr(self.reward_function, "static_stuck_counter"):
             try:
-                import git_version
-                print("GIT VERSION: %s" % git_version.__git_version__)
+                from markov.environments.git_version import __git_version__
+                print("GIT VERSION: %s" % __git_version__)
+
                 print("MW POS INITIAL: %.2f %.2f" % (INITIAL_POS_X, INITIAL_POS_Y))
                 print("MW POS CP: %.2f %.2f" % (CHECKPOINT_X, CHECKPOINT_Y))
                 print("MW POS WP: %.2f %.2f" % (WAYPOINT_1_X, WAYPOINT_1_Y))
