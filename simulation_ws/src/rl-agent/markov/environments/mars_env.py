@@ -394,6 +394,11 @@ class MarsEnv(gym.Env):
             try:
                 import git_version
                 print("GIT VERSION: %s" % git_version.__git_version__)
+                print("MW POS INITIAL: %.2f %.2f" % (INITIAL_POS_X, INITIAL_POS_Y))
+                print("MW POS CP: %.2f %.2f" % (CHECKPOINT_X, CHECKPOINT_Y))
+                print("MW POS WP: %.2f %.2f" % (WAYPOINT_1_X, WAYPOINT_1_Y))
+                print("MW POS WP: %.2f %.2f" % (WAYPOINT_2_X, WAYPOINT_2_Y))
+                print("MW POS WP: %.2f %.2f" % (WAYPOINT_3_X, WAYPOINT_3_Y))
             except Exception as err:
                 print("Could not find git version: %s" % str(err))
 
