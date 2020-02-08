@@ -1,4 +1,20 @@
+import os
+import setuptools.command.build_py
 from setuptools import setup, find_packages
+import subprocess
+
+
+class BuildPyCommand(setuptools.command.build_py.build_py):
+  """Custom build command."""
+
+  def run(self):
+    setuptools.command.build_py.build_py.run(self)
+    git_ref = subprocess.check_output("git log -1 --oneline --decorate=no | awk '{ print $1; }'", shell = True).decode("utf-8").rstrip()
+    print("============== MW %s =====================" % git_ref)
+    build_dir = os.path.join(*([self.build_lib] + [ 'markov', 'environments' ]))
+    with open(os.path.join(build_dir, "git_version.py"), 'w') as fout:
+        fout.write("__git_version__ = \"%s\"\n" % git_ref)
+
 
 setup(
     name="markov",
@@ -29,5 +45,8 @@ setup(
         'console_scripts': [
             'run_local_rl_agent=markov.rover_agent:main'
         ],
+    },
+    cmdclass={
+        'build_py': BuildPyCommand
     }
 )

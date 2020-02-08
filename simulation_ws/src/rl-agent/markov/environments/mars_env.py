@@ -25,7 +25,6 @@ from std_msgs.msg import String
 from PIL import Image
 import queue
 
-
 VERSION = "0.0.1"
 TRAINING_IMAGE_WIDTH = 160
 TRAINING_IMAGE_HEIGHT = 120
@@ -392,13 +391,19 @@ class MarsEnv(gym.Env):
         done = False
 
         if not hasattr(self.reward_function, "static_stuck_counter"):
+            try:
+                import git_version
+                print("GIT VERSION: %s" % git_version.__git_version__)
+            except Exception as err:
+                print("Could not find git version: %s" % str(err))
+
             self.reward_function.__func__.static_stuck_counter = 0
             self.reward_function.__func__.static_wp1_closer_list = collections.deque(maxlen = 10)
             self.reward_function.__func__.static_wp2_closer_list = collections.deque(maxlen = 10)
             self.reward_function.__func__.static_wp3_closer_list = collections.deque(maxlen = 10)
             self.reward_function.__func__.static_cp_closer_list = collections.deque(maxlen = 10)
 
-        if self.steps == 1:
+        if self.steps == 0:
             # Reinitialize
             self.reward_function.__func__.static_stuck_counter = 0
             self.reward_function.__func__.static_wp1_closer_list.clear()
