@@ -373,11 +373,11 @@ class MarsEnv(gym.Env):
         WAYPOINT_1_X = -9.0
         WAYPOINT_1_Y = -4.0
         
-        WAYPOINT_2_X = -20.0
-        WAYPOINT_2_Y = 2.0
+        WAYPOINT_2_X = -22.0 # -20.0
+        WAYPOINT_2_Y = -4.0  #   2.0
         
-        WAYPOINT_3_X = -30.0
-        WAYPOINT_3_Y = 2.0
+        WAYPOINT_3_X = -34.0 # -30.0
+        WAYPOINT_3_Y = -2.5  #   2.0
         
         # REWARD Multipliers
         FINISHED_REWARD = 10000.0
