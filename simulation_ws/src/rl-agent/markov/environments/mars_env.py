@@ -438,12 +438,18 @@ class MarsEnv(gym.Env):
                 return 0, True # No reward
 
             # Has the Rover reached the destination
-            if math.sqrt((CHECKPOINT_X - self.last_position_x) ** 2 + (CHECKPOINT_Y - self.last_position_y) ** 2) < 0.45:
+            d = math.sqrt((CHECKPOINT_X - self.last_position_x) ** 2 + (CHECKPOINT_Y - self.last_position_y) ** 2)
+            if d < 0.45:
                 print("Congratulations! The rover has reached the checkpoint!")
                 multiplier = FINISHED_REWARD
                 reward = (base_reward * multiplier) / self.steps # <-- incentivize to reach checkpoint in fewest steps
                 return reward, True
-            
+            elif self.last_position_x <= CHECKPOINT_X and abs(CHECKPOINT_Y - self.last_position_y) < 2.0:
+                print("Congratulations! The rover has reached the checkpoint!")
+                multiplier = FINISHED_REWARD * (1 - (d - 0.45) * 0.1)
+                reward = (base_reward * multiplier) / self.steps # <-- incentivize to reach checkpoint in fewest steps
+                return reward, True
+
             # If it has not reached the check point is it still on the map?
             if self.x < (GUIDERAILS_X_MIN - .45) or self.x > (GUIDERAILS_X_MAX + .45):
                 print("Rover has left the mission map! X: (%.2f, %.2f) [ %.2f, %.2f ]" % (self.x, self.y, GUIDERAILS_X_MIN, GUIDERAILS_X_MAX))
