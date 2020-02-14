@@ -16,6 +16,11 @@ import markov.environments
 import markov.presets
 import os
 
+try:
+    from markov.environments.git_version import __git_version__
+except Exception as err:
+    __git_version__ = None
+
 MARKOV_DIRECTORY = os.path.dirname(markov.__file__)
 CUSTOM_FILES_PATH = "./custom_files"
 
@@ -94,7 +99,7 @@ def main():
     task_parameters.__dict__ = add_items_to_dict(task_parameters.__dict__, args.__dict__)
 
     data_store_params_instance = S3BotoDataStoreParameters(bucket_name=args.model_s3_bucket,
-                                                           s3_folder=args.model_s3_prefix,
+                                                           s3_folder = args.model_s3_prefix + ('-' + __git_version__ if __git_version__ != None else ''),
                                                            checkpoint_dir=args.local_model_directory,
                                                            aws_region=args.aws_region)
 

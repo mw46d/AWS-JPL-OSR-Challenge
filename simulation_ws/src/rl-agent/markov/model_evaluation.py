@@ -12,6 +12,11 @@ from markov.s3_boto_data_store import S3BotoDataStoreParameters, S3BotoDataStore
 import markov.environments
 from markov import utils
 
+try:
+    from markov.environments.git_version import __git_version__
+except Exception as err:
+    __git_version__ = None
+
 CUSTOM_FILES_PATH="robomaker"
 PRESET_LOCAL_PATH = os.path.join(CUSTOM_FILES_PATH, "presets/")
 ENVIRONMENT_LOCAL_PATH = os.path.join(CUSTOM_FILES_PATH, "environments/")
@@ -62,7 +67,7 @@ def main():
 
     args = parser.parse_args()
     data_store_params_instance = S3BotoDataStoreParameters(bucket_name=args.model_s3_bucket,
-                                                           s3_folder=args.model_s3_prefix,
+                                                           s3_folder = args.model_s3_prefix + ('-' + __git_version__ if __git_version__ != None else ''),
                                                            checkpoint_dir=args.local_model_directory,
                                                            aws_region=args.aws_region)
     data_store = S3BotoDataStore(data_store_params_instance)
